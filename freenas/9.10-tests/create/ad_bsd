@@ -8,32 +8,39 @@
 # List the other modules which must be run before this module can execute
 REQUIRES="storage ntp"
 export REQUIRES
-
+#RISHABH: A variable is exported from another file ?
 ad_bsd_tests()
 {
   local DATASET="ad-bsd"
   local SMB_NAME="TestShare"
   local SMB_PATH="/mnt/tank/${DATASET}"
+  #RISHABH: In this specific case ${DATASET}=$DATASET ?
   local MOUNTPOINT="/tmp/ad-mnt.$$"
   local VOL_GROUP="qa"
 
   set_test_group_text "1 - Create - Active Directory BSD tests" "24"
   CLASSNAME=ixbuild.resty.functional.create.ad_bsd
 
-  if [ -z "$ADUSERNAME" -o -z "$ADPASSWORD" ] ; then
+  if [ -z  "$ADUSERNAME" -o -z "$ADPASSWORD" ] ; then
+     #RISHABH: -z String means if the string is null, it will be true  / -o is logical OR
+     #RISHABH: any of the two strings are Null, then 
      echo -n "Missing the ADUSERNAME / ADPASSWORD settings, test skipped.."
      echo_skipped
+     #RISHABH: echo_skipped is not in this file, is it imported with REQUIRES??
      add_xml_result "skipped" "Skipped due to missing AD settings"
+     #RISHABH: add_xml_result is not in this file, is it imported with REQUIRES??
      return 0
   fi
 
   # Clean up any leftover items from previous failed AD LDAP or SMB runs
   rest_request "PUT" "/directoryservice/activedirectory/1/" '{ "ad_bindpw": "'${ADPASSWORD}'", "ad_bindname": "'${ADUSERNAME}'", "ad_domainname": "'${BRIDGEDOMAIN}'", "ad_netbiosname_a": "'${BRIDGEHOST}'", "ad_idmap_backend": "rid", "ad_enable":"false" }'
+  #RISHABH: rest_request is used multiple times but not defined this file, is it imported with REQUIRES??
   rest_request "PUT" "/directoryservice/ldap/1/" '{ "ldap_basedn": "'${LDAPBASEDN}'", "ldap_binddn": "'${LDAPBINDDN}'",  "ldap_bindpw": "'${LDAPBINDPASSWORD}'", "ldap_netbiosname_a": "'${BRIDGEHOST}'", "ldap_hostname": "'${LDAPHOSTNAME}'", "ldap_has_samba_schema": true, "ldap_enable": false }'
   rest_request "PUT" "/services/services/cifs/" '{ "srv_enable": false }'
   rest_request "DELETE" "/sharing/cifs/" '{ "cfs_comment": "My Test SMB Share", "cifs_path": "'"${SMB_PATH}"'", "cifs_name": "'"${SMB_NAME}"'", "cifs_guestok": true, "cifs_vfsobjects": "streams_xattr" }'
   rest_request "DELETE" "/storage/volume/1/datasets/${DATASET}/"
   umount -A &>/dev/null
+  #RISHABH: unmount null device but what does -A 
   rmdir /tmp/ad-mnt.* &>/dev/null
 
   # Set auxilary parameters to allow mount_smbfs to work with Active Directory

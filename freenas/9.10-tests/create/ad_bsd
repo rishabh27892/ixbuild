@@ -40,11 +40,12 @@ ad_bsd_tests()
   rest_request "DELETE" "/sharing/cifs/" '{ "cfs_comment": "My Test SMB Share", "cifs_path": "'"${SMB_PATH}"'", "cifs_name": "'"${SMB_NAME}"'", "cifs_guestok": true, "cifs_vfsobjects": "streams_xattr" }'
   rest_request "DELETE" "/storage/volume/1/datasets/${DATASET}/"
   umount -A &>/dev/null
-  #RISHABH: unmount null device but what does -A 
+  #RISHABH: unmount null device but what does -A&> mean 
   rmdir /tmp/ad-mnt.* &>/dev/null
-
+  #RISHABH: remove directory /tmp/ad-mnt
   # Set auxilary parameters to allow mount_smbfs to work with Active Directory
   echo_test_title "Setting auxilary parameters for mount_smbfs.."
+  #RISHABH: working of echo_xyz xyz= all the other variations ??
   rest_request "PUT" "/services/cifs/" '{ "cifs_srv_smb_options": "lanman auth = yes\nntlm auth = yes \nraw NTLMv2 auth = yes" }'
   check_rest_response "200 OK"
 
